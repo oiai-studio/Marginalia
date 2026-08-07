@@ -1,0 +1,6 @@
+# Rob's hand-picked fast-track list (IMPORT.md: "Rob picks fifteen or
+# twenty he already knows are good"). One identifier per line, matching
+# either the original CSV `identifier` or a resolved arxiv_id/doi from
+# data/backlog-queue.csv. Empty until populated — scripts/import/
+# seed-queue.mjs is a no-op with nothing here. Lines starting with # are
+# ignored.

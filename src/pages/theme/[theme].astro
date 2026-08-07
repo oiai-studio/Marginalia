@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ThemeChecklist from '../../components/ThemeChecklist.astro';
+import SignalStripHeader from '../../components/SignalStripHeader.astro';
+import EntryCard from '../../components/EntryCard.astro';
+import { THEMES } from '../../content/vocab.mjs';
+import { getPublishedEntries, byThemeRoute } from '../../lib/entries';
+
+// Generated for all 5 theme slugs even when a theme currently has zero
+// entries — it's a small, closed, permanent list, so an empty page reads
+// as "nothing yet" rather than a broken link.
+export async function getStaticPaths() {
+  return THEMES.map((theme) => ({ params: { theme: theme.slug } }));
+}
+
+const { theme: themeSlug } = Astro.params;
+const theme = THEMES.find((t) => t.slug === themeSlug)!;
+
+const allEntries = await getPublishedEntries();
+// Includes secondary-theme matches, unlike the homepage feed — see
+// byThemeRoute in src/lib/entries.ts for the CONTENT-MODEL.md reading.
+const entries = byThemeRoute(allEntries, themeSlug as string);
+---
+
+<BaseLayout title={`Marginalia — ${theme.label}`}>
+  <header>
+    <p class="chrome muted"><a class="chrome-link" href={import.meta.env.BASE_URL}>[index]</a></p>
+    <h1 class="prose page-title">{theme.label}</h1>
+  </header>
+
+  <section class="themes">
+    <ThemeChecklist entries={allEntries} activeTheme={themeSlug} />
+  </section>
+
+  <hr class="rule" />
+
+  <section class="entries">
+    <SignalStripHeader />
+    {entries.length === 0 ? (
+      <p class="muted chrome empty">nothing here yet</p>
+    ) : (
+      entries.map((entry) => <EntryCard entry={entry} />)
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .page-title {
+    font-size: var(--fs-body);
+    font-weight: 400;
+  }
+
+  .themes {
+    margin-bottom: 24px;
+  }
+
+  .rule {
+    margin-bottom: 8px;
+  }
+
+  .empty {
+    padding: 20px 0;
+  }
+</style>

@@ -1,0 +1,44 @@
+name: Weekly ingest
+
+# Default: Monday 07:00 UTC — an easy value to change once Rob confirms a
+# preferred time (see the plan's "known follow-ups").
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run pipeline
+        run: npm run pipeline:run
+        env:
+          # No provider is wired in yet — extraction will skip every
+          # candidate until this (or an equivalent) secret is added and
+          # scripts/lib/extract.mjs's callModel is implemented.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Open pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: 'Weekly ingest: new entries'
+          title: 'Weekly ingest — ${{ github.run_id }}'
+          body-path: scripts/pipeline/run-summary.md
+          branch: ingest/weekly-${{ github.run_number }}
+          add-paths: |
+            src/content/entries/**
+            data/backlog-queue.csv

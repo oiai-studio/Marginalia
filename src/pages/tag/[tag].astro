@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SignalStripHeader from '../../components/SignalStripHeader.astro';
+import EntryCard from '../../components/EntryCard.astro';
+import { TAGS } from '../../content/vocab.mjs';
+import { getPublishedEntries, byTag } from '../../lib/entries';
+
+// Generated for all entries in the closed tag list, same rationale as the
+// theme routes — a small permanent set, so an empty page is expected
+// early on rather than a broken link. Reached only via an entry's own
+// inline tag chips; there is no homepage tag checklist (DESIGN.md only
+// specifies a theme checklist there).
+export async function getStaticPaths() {
+  return TAGS.map((tag) => ({ params: { tag } }));
+}
+
+const { tag } = Astro.params;
+
+const allEntries = await getPublishedEntries();
+const entries = byTag(allEntries, tag as string);
+---
+
+<BaseLayout title={`Marginalia — [${tag}]`}>
+  <header>
+    <p class="chrome muted"><a class="chrome-link" href={import.meta.env.BASE_URL}>[index]</a></p>
+    <h1 class="prose page-title chrome">[{tag}]</h1>
+  </header>
+
+  <section class="entries">
+    <SignalStripHeader />
+    {entries.length === 0 ? (
+      <p class="muted chrome empty">nothing here yet</p>
+    ) : (
+      entries.map((entry) => <EntryCard entry={entry} />)
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .page-title {
+    font-weight: 400;
+  }
+
+  .empty {
+    padding: 20px 0;
+  }
+</style>

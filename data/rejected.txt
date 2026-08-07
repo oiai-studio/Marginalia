@@ -1,0 +1,4 @@
+# One arxiv_id or doi per line. Papers listed here are never resurfaced
+# by the weekly ingest (PIPELINE.md step 2). Maintained by hand — nothing
+# in the pipeline automates adding a line here yet; see the plan's known
+# follow-ups. Lines starting with # are ignored.

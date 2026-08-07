@@ -1,0 +1,104 @@
+---
+import { render } from 'astro:content';
+import type { Entry } from '../lib/entries';
+import SignalStrip from './SignalStrip.astro';
+
+interface Props {
+  entry: Entry;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+const { Content } = await render(entry);
+
+const year = data.published.getUTCFullYear();
+---
+
+<details class="entry rule">
+  <summary>
+    <div class="entry-head">
+      <h2 class="prose title">{data.title}</h2>
+      <div class="muted chrome venue-line">{data.venue} &middot; {year}</div>
+      <SignalStrip signals={data.signals} mode="row" />
+    </div>
+  </summary>
+
+  <div class="entry-body">
+    <SignalStrip signals={data.signals} mode="stacked" />
+
+    <div class="prose findings">
+      <Content />
+    </div>
+
+    <div class="entry-footer">
+      <div class="tags chrome">
+        {data.tags.map((tag) => (
+          <a class="chrome-link tag" href={`${import.meta.env.BASE_URL}tag/${tag}/`}>[{tag}]</a>
+        ))}
+      </div>
+      <a class="chrome-link read-link" href={data.url} target="_blank" rel="noopener noreferrer">[read the paper]</a>
+    </div>
+  </div>
+</details>
+
+<style>
+  .entry {
+    padding: 20px 0;
+  }
+
+  summary {
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .entry-head {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .title {
+    font-size: var(--fs-body);
+    font-weight: 400;
+  }
+
+  .entry-body {
+    padding-top: 16px;
+  }
+
+  .findings :global(h2) {
+    font-size: var(--fs-label);
+    text-transform: uppercase;
+    letter-spacing: var(--ls-label);
+    color: var(--muted);
+    margin-top: 16px;
+    margin-bottom: 4px;
+  }
+
+  .findings :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .findings :global(p) {
+    max-width: 65ch;
+  }
+
+  .entry-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .tags {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+</style>

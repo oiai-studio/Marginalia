@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ThemeChecklist from '../components/ThemeChecklist.astro';
+import SignalStripHeader from '../components/SignalStripHeader.astro';
+import EntryCard from '../components/EntryCard.astro';
+import { getPublishedEntries } from '../lib/entries';
+
+const entries = await getPublishedEntries();
+---
+
+<BaseLayout title="Marginalia">
+  <header>
+    <h1 class="prose site-title">Marginalia</h1>
+    <p class="prose intro">
+      Index of academic papers that cross over between HCI and AI.
+    </p>
+  </header>
+
+  <section class="themes">
+    <ThemeChecklist entries={entries} />
+  </section>
+
+  <hr class="rule" />
+
+  <section class="entries">
+    <SignalStripHeader />
+    {entries.map((entry) => <EntryCard entry={entry} />)}
+  </section>
+</BaseLayout>
+
+<style>
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .site-title {
+    font-size: var(--fs-body);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: var(--ls-label);
+  }
+
+  .themes {
+    margin-bottom: 24px;
+  }
+
+  .rule {
+    margin-bottom: 8px;
+  }
+</style>

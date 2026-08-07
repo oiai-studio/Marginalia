@@ -1,0 +1,29 @@
+/* DESIGN.md tokens: four values, no accent. Emphasis comes from bracket
+   notation and case, not hue — resist adding a fifth colour. */
+:root {
+  --paper: #EDEBE5;
+  --ink: #2A2A26;
+  --muted: #8C897F;
+  --rule: #C4C0B6;
+
+  /* Two sizes only. Case does the hierarchy size would normally do. */
+  --fs-body: 13px;
+  --lh-body: 1.6;
+  --fs-label: 11px;
+  --lh-label: 1.5;
+  --ls-label: 0.08em;
+
+  --content-max: 1200px;
+  --gutter: 48px;
+  --gutter-mobile: 20px;
+
+  --breakpoint-stack: 700px;
+
+  --transition-fast: 120ms;
+}
+
+/*
+  Deliberately no `prefers-color-scheme` query anywhere in this stylesheet.
+  DESIGN.md: "This is a paper object. Inverted, it stops being one." That
+  is a design decision, not an omission — do not add dark mode.
+*/

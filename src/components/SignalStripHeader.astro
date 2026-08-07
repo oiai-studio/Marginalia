@@ -1,0 +1,17 @@
+---
+// Column headers for the signal strip, printed once above the entry list
+// so the columns read as a table down the page (DESIGN.md's "aligned
+// columns" argument). Shares .signal-grid with SignalStrip.astro's row
+// mode so the two line up.
+const LABELS = ['MODEL', 'N', 'WHO', 'METHOD', 'SETTING'];
+---
+
+<div class="signal-grid strip-header chrome muted" role="presentation">
+  {LABELS.map((label) => <span>[{label}]</span>)}
+</div>
+
+<style>
+  .strip-header {
+    padding-bottom: 8px;
+  }
+</style>

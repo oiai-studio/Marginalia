@@ -1,0 +1,122 @@
+---
+// The signature element (DESIGN.md): five appraisal signals in a fixed
+// order. Rendered in two places per entry — once inline in the row
+// (desktop, >=700px) so scrolling the index shows the gaps as texture,
+// and once stacked with labels in the expanded body (mobile, <700px).
+// Both copies are always in the DOM; CSS toggles which shows.
+
+interface Signals {
+  model_tested: string;
+  participants: number | string;
+  population: string;
+  study_type: string;
+  task_setting: string;
+}
+
+interface Props {
+  signals: Signals;
+  mode: 'row' | 'stacked';
+}
+
+const { signals, mode } = Astro.props;
+
+const STUDY_TYPE_LABELS: Record<string, string> = {
+  'controlled-experiment': 'controlled exp.',
+  'field-deployment': 'field deployment',
+  'interview-study': 'interview study',
+  survey: 'survey',
+  'diary-study': 'diary study',
+  'wizard-of-oz': 'wizard of oz',
+  'system-paper-no-eval': 'system paper, no eval',
+  'literature-review': 'literature review',
+  'benchmark-or-dataset': 'benchmark/dataset',
+  'position-paper': 'position paper',
+};
+
+const TASK_SETTING_LABELS: Record<string, string> = {
+  'lab-synthetic': 'lab, synthetic',
+  'lab-realistic': 'lab, realistic',
+  'field-real-work': 'field, real work',
+  'simulated-no-humans': 'simulated, no humans',
+  'n/a': 'n/a',
+};
+
+function isAbsent(value: unknown): value is string {
+  return value === 'not reported' || value === 'n/a';
+}
+
+function format(value: unknown, labels?: Record<string, string>) {
+  if (isAbsent(value)) {
+    return { display: '--', title: value as string };
+  }
+  const raw = String(value);
+  return { display: labels?.[raw] ?? raw, title: undefined };
+}
+
+const fields = [
+  { label: 'MODEL', ...format(signals.model_tested) },
+  { label: 'N', ...format(signals.participants) },
+  { label: 'WHO', ...format(signals.population) },
+  { label: 'METHOD', ...format(signals.study_type, STUDY_TYPE_LABELS) },
+  { label: 'SETTING', ...format(signals.task_setting, TASK_SETTING_LABELS) },
+];
+---
+
+{
+  mode === 'row' ? (
+    <div class="signal-grid strip-row chrome" role="presentation">
+      {fields.map((f) => (
+        <span class={f.title ? 'muted' : ''} title={f.title}>
+          {f.display}
+        </span>
+      ))}
+    </div>
+  ) : (
+    <dl class="strip-stacked chrome">
+      {fields.map((f) => (
+        <div class="strip-stacked-row">
+          <dt>[{f.label}]</dt>
+          <dd class={f.title ? 'muted' : ''} title={f.title}>
+            {f.display}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
+<style>
+  .strip-row span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .strip-stacked {
+    display: none;
+    margin: 0 0 16px;
+  }
+
+  .strip-stacked-row {
+    display: flex;
+    gap: 8px;
+    padding: 2px 0;
+  }
+
+  .strip-stacked-row dt {
+    color: var(--muted);
+    flex: 0 0 auto;
+  }
+
+  .strip-stacked-row dd {
+    margin: 0;
+  }
+
+  /* .strip-row's hide-below-700px behaviour comes from the shared
+     .signal-grid rule in global.css, so header and rows stay in sync. */
+  @media (max-width: 700px) {
+    .strip-stacked {
+      display: block;
+    }
+  }
+</style>

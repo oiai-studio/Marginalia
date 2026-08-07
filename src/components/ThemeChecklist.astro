@@ -1,0 +1,54 @@
+---
+import { THEMES } from '../content/vocab.mjs';
+import { byPrimaryTheme, type Entry } from '../lib/entries';
+
+interface Props {
+  entries: Entry[];
+  activeTheme?: string;
+}
+
+const { entries, activeTheme } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<ul class="theme-list chrome">
+  {THEMES.map((theme) => {
+    const count = byPrimaryTheme(entries, theme.slug).length;
+    const active = theme.slug === activeTheme;
+    return (
+      <li class="theme-row">
+        <a class="chrome-link theme-link" href={`${base}theme/${theme.slug}/`}>
+          <span class="box">[{active ? 'x' : ' '}]</span>
+          <span class="theme-label">{theme.label}</span>
+        </a>
+        <span class="muted count">{count}</span>
+      </li>
+    );
+  })}
+</ul>
+
+<style>
+  .theme-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .theme-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 6px 0;
+  }
+
+  .theme-link {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+  }
+
+  .box {
+    flex: 0 0 auto;
+  }
+</style>
