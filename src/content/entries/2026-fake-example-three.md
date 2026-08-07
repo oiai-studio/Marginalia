@@ -2,6 +2,9 @@
 # FAKE PLACEHOLDER ENTRY — scaffolding only, not a real paper.
 # Delete once Rob's three real hand-written entries exist (CLAUDE.md).
 # status: queued on purpose, to verify the index excludes unpublished entries.
+# `url` points at a stable, generic arXiv listing page (not a specific
+# paper) rather than a fake abs/ page, so the live link-check passes
+# honestly instead of pointing at something that pretends to be real.
 
 title: "Sketch-First Prompts in Collaborative Design Tools"
 authors: "Farrow and Ibe"
@@ -12,7 +15,7 @@ source: pipeline
 
 venue: "arXiv cs.HC"
 venue_type: preprint
-url: "https://arxiv.org/abs/0000.00002"
+url: "https://arxiv.org/list/cs.HC/recent"
 arxiv_id: "0000.00002"
 
 theme: design-practice

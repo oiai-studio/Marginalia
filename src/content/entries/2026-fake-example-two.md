@@ -2,6 +2,9 @@
 # FAKE PLACEHOLDER ENTRY — scaffolding only, not a real paper.
 # Delete once Rob's three real hand-written entries exist (CLAUDE.md).
 # Deliberately carries "not reported" signals to exercise the `--` rendering.
+# `url` points at a stable, generic arXiv listing page rather than a fake
+# doi.org link — dl.acm.org blocks unauthenticated requests outright
+# (403), and a fake doi.org/10.1145/... link would 404 either way.
 
 title: "Ambient Disclosure in Everyday Conversational Interfaces"
 authors: "Marchetti et al."
@@ -12,7 +15,7 @@ source: manual
 
 venue: "CHI 2026"
 venue_type: peer-reviewed
-url: "https://doi.org/10.1145/0000000.0000001"
+url: "https://arxiv.org/list/cs.AI/recent"
 doi: "10.1145/0000000.0000001"
 
 theme: interaction

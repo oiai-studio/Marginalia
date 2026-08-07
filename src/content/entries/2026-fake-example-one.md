@@ -1,6 +1,9 @@
 ---
 # FAKE PLACEHOLDER ENTRY — scaffolding only, not a real paper.
 # Delete once Rob's three real hand-written entries exist (CLAUDE.md).
+# `url` points at a stable, generic arXiv listing page (not a specific
+# paper) rather than a fake abs/ page, so the live link-check passes
+# honestly instead of pointing at something that pretends to be real.
 
 title: "Repair Work in Human-Agent Task Handoff"
 authors: "Okonkwo and Bevan"
@@ -11,7 +14,7 @@ source: manual
 
 venue: "arXiv cs.HC"
 venue_type: preprint
-url: "https://arxiv.org/abs/0000.00001"
+url: "https://arxiv.org/list/cs.HC/recent"
 arxiv_id: "0000.00001"
 
 theme: supervision
