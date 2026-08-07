@@ -7,6 +7,8 @@ The site, validation, design system, pipeline, and import tooling are all built 
 - [ ] Write the three real hand-written entries (`CLAUDE.md`: "Rob will write three real ones by hand before any generated entry ships; treat those three as the standard, not this template").
 - [ ] Delete the three placeholder entries once the real ones exist: [2026-fake-example-one.md](../src/content/entries/2026-fake-example-one.md), [2026-fake-example-two.md](../src/content/entries/2026-fake-example-two.md), [2026-fake-example-three.md](../src/content/entries/2026-fake-example-three.md) — each is marked `FAKE PLACEHOLDER ENTRY` in its frontmatter comment.
 - [ ] Drop `STYLE.md` into `docs/planning/` (referenced by `CLAUDE.md` but not yet written). The homepage intro sentence in [index.astro](../src/pages/index.astro) is now Rob's own copy rather than an assistant placeholder, but hasn't been checked against a house style that doesn't exist yet.
+- [ ] Review the 9 real papers from `example-papers.md` now sitting in `src/content/entries/` as `status: queued`, `source: manual` — run `npm run ready` to list them. Each has real extracted signals and a "What they found" line, but `## Why it matters` is deliberately blank on all of them; write that line (or reject the entry) before flipping any to `published`.
+- [ ] `2605.01472` ("Adaptive Memory in Conversational UX" from `example-papers.md`) doesn't check out — that arXiv ID resolves to an unrelated physics paper, and no matching title exists anywhere on arXiv. Track down the real ID or drop it from the source list.
 
 ## Pipeline
 
@@ -25,14 +27,14 @@ The site, validation, design system, pipeline, and import tooling are all built 
 
 ## Deployment
 
-- [ ] In the GitHub repo settings, set Pages source to "GitHub Actions" (required for [deploy.yml](../.github/workflows/deploy.yml) to publish).
-- [ ] Push to `main` and confirm the deploy workflow goes green and the site is reachable at `https://oiai-studio.github.io/Marginalia/`.
+- [x] In the GitHub repo settings, set Pages source to "GitHub Actions" (required for [deploy.yml](../.github/workflows/deploy.yml) to publish).
+- [x] Push to `main` and confirm the deploy workflow goes green and the site is reachable at `https://oiai-studio.github.io/Marginalia/`.
 - [ ] If a custom domain is wanted instead of the default GitHub Pages URL, update `site`/`base` in [astro.config.mjs](../astro.config.mjs) and add a `CNAME`.
 
 ## Housekeeping
 
-- [ ] First commit — nothing in the scaffold is committed to git yet.
-- [ ] Confirm `npm ci && npm run build` goes green in CI on a real PR (only run locally so far).
+- [x] First commit and push — done.
+- [ ] Confirm `npm ci && npm run build` goes green in CI on a real PR (only run on direct pushes to `main` so far, via the deploy workflow — no PR has been opened yet).
 - [ ] Approve or ignore the `esbuild`/`sharp` install-script warnings npm prints on install (both are legitimate Astro build dependencies, not something this project added).
 
 ## Known, deliberate gaps (not blockers, just don't forget why)
