@@ -11,14 +11,14 @@ const { entry } = Astro.props;
 const { data } = entry;
 const { Content } = await render(entry);
 
-const year = data.published.getUTCFullYear();
+const publishedDate = data.published.toISOString().slice(0, 10);
 ---
 
 <details class="entry rule">
   <summary>
     <div class="entry-head">
       <h2 class="prose title">{data.title}</h2>
-      <div class="muted chrome venue-line">{data.venue} &middot; {year}</div>
+      <div class="muted chrome venue-line">{data.venue} &middot; {publishedDate}</div>
       <SignalStrip signals={data.signals} mode="row" />
     </div>
   </summary>
