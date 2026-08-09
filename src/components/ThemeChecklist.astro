@@ -1,6 +1,6 @@
 ---
 import { THEMES } from '../content/vocab.mjs';
-import { byPrimaryTheme, type Entry } from '../lib/entries';
+import { byThemeRoute, type Entry } from '../lib/entries';
 
 interface Props {
   entries: Entry[];
@@ -13,7 +13,10 @@ const base = import.meta.env.BASE_URL;
 
 <ul class="theme-list chrome">
   {THEMES.map((theme) => {
-    const count = byPrimaryTheme(entries, theme.slug).length;
+    // Matches byThemeRoute's primary-or-secondary filtering on the
+    // /theme/<slug>/ page this links to, so the count shown here never
+    // disagrees with what clicking through actually lists.
+    const count = byThemeRoute(entries, theme.slug).length;
     const active = theme.slug === activeTheme;
     return (
       <li class="theme-row">
