@@ -43,6 +43,7 @@ export async function processCandidate(candidate, source) {
   const { fileName } = await writeEntryFile({
     title: candidate.title,
     authors: candidate.authors ?? 'not reported',
+    institutions: extraction.data.institutions,
     published: candidate.published ?? new Date(),
     status: 'queued',
     source,

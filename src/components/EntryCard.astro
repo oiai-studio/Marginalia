@@ -12,6 +12,7 @@ const { data } = entry;
 const { Content } = await render(entry);
 
 const publishedDate = data.published.toISOString().slice(0, 10);
+const institutionsAbsent = data.institutions === 'not reported';
 ---
 
 <details class="entry rule">
@@ -19,6 +20,9 @@ const publishedDate = data.published.toISOString().slice(0, 10);
     <div class="entry-head">
       <h2 class="prose title">{data.title}</h2>
       <div class="muted chrome venue-line">{data.venue} &middot; {publishedDate}</div>
+      <div class="muted chrome institutions-line" title={institutionsAbsent ? 'not reported' : undefined}>
+        {institutionsAbsent ? '--' : data.institutions}
+      </div>
       <SignalStrip signals={data.signals} mode="row" />
     </div>
   </summary>

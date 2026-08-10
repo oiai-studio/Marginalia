@@ -26,6 +26,7 @@ import {
 const REQUIRED_FIELDS = [
   'title',
   'authors',
+  'institutions',
   'published',
   'added',
   'status',

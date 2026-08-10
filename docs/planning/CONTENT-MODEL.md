@@ -8,6 +8,7 @@ Entries live at `entries/<year>-<arxiv-id-or-doi-slug>.md`. Frontmatter carries 
 ---
 title: "Exact title as published"
 authors: "Okonkwo et al."        # first author + et al., or up to two names
+institutions: "MIT, Google DeepMind"  # as printed on the paper, comma-separated
 published: 2026-03-14            # the paper's own date, not the date added
 added: 2026-08-07
 status: queued                   # queued | published
@@ -35,6 +36,8 @@ signals:
 ## The signals are the point, and absence is a value
 
 Every signal field is required in the file. Where the paper does not state it, the value is the literal string `not reported`. Never infer, estimate, or fill from context. A paper that does not name the model it tested is telling the reader something, and the site's job is to let that show.
+
+`institutions` follows the same rule, and it lives outside `signals` alongside `authors` and `venue` — it is bibliographic metadata about who published the paper, not an appraisal signal about the study itself. Take it only from the paper's own title page or author block, exactly as printed, comma-separated for more than one. Never infer an institution from an author's name, email domain, or outside knowledge of who they are. If the paper states none, the value is `not reported`.
 
 `participants` is an integer, `not reported`, or `n/a` for papers with no human study. Do not convert "a small group" into a number.
 

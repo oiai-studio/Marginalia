@@ -7,6 +7,7 @@
 
 title: "Repair Work in Human-Agent Task Handoff"
 authors: "Okonkwo and Bevan"
+institutions: "Fictional University (placeholder entry)"
 published: 2026-03-14
 added: 2026-08-07
 status: published

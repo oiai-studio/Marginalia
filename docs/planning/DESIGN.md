@@ -63,7 +63,7 @@ Case does the hierarchy that size normally would. Content is sentence case, chro
 
 Wider than a blog column. The reference runs the index near full width so the columns can breathe, and the signal strip needs that room. Cap the content at about 1200px, with 48px gutters on desktop and 20px on mobile.
 
-At narrow widths the strip cannot hold five columns, so below roughly 700px it stacks into labelled rows (`[N] 24`) inside the expanded entry, and the collapsed row shows title, venue, year and nothing else. Design that state first: this gets used on a phone mid-meeting, and mono at 11px wraps badly if you leave it to chance.
+At narrow widths the strip cannot hold five columns, so below roughly 700px it stacks into labelled rows (`[N] 24`) inside the expanded entry, and the collapsed row drops the strip down to title, venue, date, and institutions. Design that state first: this gets used on a phone mid-meeting, and mono at 11px wraps badly if you leave it to chance.
 
 Expansion uses `<details>` and `<summary>` — no script needed, and that stays true regardless of what else the site grows. Default to plain HTML/CSS first, the way expansion and the theme/tag filters do: it's simpler, and simple is the point.
 

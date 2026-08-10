@@ -4,6 +4,7 @@
 
 title: ""
 authors: ""                    # "Okonkwo et al." or up to two names
+institutions: "not reported"   # as printed on the paper, comma-separated
 published: YYYY-MM-DD          # the paper's date, not today's
 added: YYYY-MM-DD
 status: queued                 # queued | published

@@ -48,6 +48,11 @@ ABSOLUTE RULES
 
 FIELDS
 
+institutions    Author affiliations exactly as printed on the paper's title
+                page or author block, comma-separated for more than one.
+                Never infer from an author's name, email domain, or outside
+                knowledge of who they are — only from what this paper
+                itself states. "not reported" if the paper states none.
 model_tested    Exact model names and versions evaluated, as written in the
                 paper. If it says "a large language model" with no name,
                 that is "not reported".

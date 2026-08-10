@@ -34,6 +34,7 @@ const entrySchema = z
   .object({
     title: z.string(),
     authors: z.string(),
+    institutions: z.string(),
     published: z.coerce.date(),
     added: z.coerce.date(),
     status: statusEnum,

@@ -8,6 +8,7 @@
 
 title: "Sketch-First Prompts in Collaborative Design Tools"
 authors: "Farrow and Ibe"
+institutions: "Fictional Design Lab (placeholder entry)"
 published: 2026-05-20
 added: 2026-08-07
 status: queued

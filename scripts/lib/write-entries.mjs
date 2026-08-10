@@ -36,6 +36,7 @@ export function buildEntryMarkdown(input) {
   const {
     title,
     authors,
+    institutions,
     published,
     added = new Date(),
     status,
@@ -57,6 +58,7 @@ export function buildEntryMarkdown(input) {
     '---',
     `title: ${yamlStr(title)}`,
     `authors: ${yamlStr(authors)}`,
+    `institutions: ${yamlStr(institutions)}`,
     `published: ${yamlDate(published)}`,
     `added: ${yamlDate(added)}`,
     `status: ${status}`,
