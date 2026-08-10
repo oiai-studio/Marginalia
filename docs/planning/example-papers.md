@@ -16,5 +16,17 @@
     Augmenting Interface Usability Heuristics for Reliable Computer-Use Agents
 9. https://arxiv.org/abs/2605.02902
     From Passive Feeds to Guided Discovery: AI-Initiated Interaction for Vague Intent in Content Exploration
+
+<!--
 10. https://arxiv.org/abs/2605.01472
     Adaptive Memory in Conversational UX
+
+Dropped 2026-08-10: 2605.01472 resolves to an unrelated physics paper, and
+a thorough search (arXiv title/abstract search, general web search, close
+title variants) found no real paper titled "Adaptive Memory in
+Conversational UX" anywhere. Looks like a fabricated entry from the
+original ChatGPT-sourced lead list — exactly the failure mode IMPORT.md
+warns about ("a meaningful share of them will be plausible and wrong").
+Not resolved to a substitute; per IMPORT.md, an unresolved row is cheap,
+a wrong one is not.
+-->
