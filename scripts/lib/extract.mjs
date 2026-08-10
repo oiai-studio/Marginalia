@@ -28,7 +28,15 @@ ABSOLUTE RULES
    what the paper found.
 3. Use only the closed vocabularies given. If nothing fits, return
    "needs-review" and explain in the notes field. Do not invent a value.
-4. British English. No em dashes. Plain past tense.
+4. House style (see STYLE.md), applied to "finding" and "notes": British
+   English, plain past tense, straight quotes. No em dashes. No "not just
+   X, but Y" or "not X, but Y" constructions. No promotional or
+   significance-puffery language (e.g. "cutting-edge", "robust",
+   "seamlessly", "plays a pivotal role", "underscores the importance").
+   No vague attribution ("researchers found" when the paper names who).
+   Don't tack a vague "-ing" consequence onto the end of a sentence after
+   a comma; if the consequence has real evidence, write it as its own
+   sentence instead.
 
 FIELDS
 

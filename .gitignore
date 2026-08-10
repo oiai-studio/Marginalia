@@ -3,3 +3,8 @@ dist/
 .astro/
 .DS_Store
 *.log
+
+# Never commit local secrets (e.g. DEEPSEEK_API_KEY for local testing).
+.env
+.env.*
+!.env.example
