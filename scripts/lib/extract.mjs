@@ -1,9 +1,8 @@
 // Extraction step: builds PIPELINE.md's prompt, calls a model, and
-// validates the JSON it returns. The model call itself is stubbed behind
-// `callModel` — no LLM provider/API key exists in this session, so this
-// is a one-function swap once Rob picks a provider and adds its secret
-// as a GitHub Actions env var. Structured this way specifically so the
-// prompt-building and response-parsing halves are testable without one.
+// validates the JSON it returns. The model call is isolated behind
+// `callModel` specifically so prompt-building and response-parsing stay
+// testable with a fixture, independent of the real provider — see
+// callDeepSeek below for the actual live call.
 
 import {
   THEMES,
@@ -65,13 +64,54 @@ PAPER FULL TEXT
 ${fullText}`;
 }
 
-async function defaultCallModel() {
-  throw new Error(
-    'No LLM provider configured. extract.mjs isolates the model call behind ' +
-      'callModel() specifically so a provider can be wired in later without ' +
-      'touching prompt-building or response validation — see PIPELINE.md open ' +
-      'question on provider choice.'
-  );
+const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions';
+// deepseek-chat (V3.2, non-reasoning) is the right tier for rule-following
+// structured extraction — deepseek-reasoner is slower/costlier and buys
+// nothing here. Override via DEEPSEEK_MODEL if that judgment changes.
+const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || 'deepseek-chat';
+
+/**
+ * Live call to DeepSeek's chat completions API (OpenAI-compatible), used
+ * as extractSignals' default callModel. Reads DEEPSEEK_API_KEY from the
+ * environment — export it locally for a manual run, or set it as a
+ * GitHub Actions secret for ingest.yml. Never hold the key in a file
+ * this repo commits.
+ */
+export async function callDeepSeek(prompt) {
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      'DEEPSEEK_API_KEY is not set. Export it in your shell for a local run, ' +
+        'or add it as a GitHub Actions secret (see ingest.yml) for the real pipeline.'
+    );
+  }
+
+  const res = await fetch(DEEPSEEK_API_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: DEEPSEEK_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      response_format: { type: 'json_object' },
+      // Deterministic extraction, not creative writing.
+      temperature: 0,
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`DeepSeek API request failed: ${res.status} ${res.statusText} ${body}`);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error('DeepSeek API response had no message content');
+  }
+  return content;
 }
 
 const REQUIRED_KEYS = [
@@ -147,7 +187,7 @@ export function validateExtraction(raw) {
  * validate its JSON response. `callModel` is injectable so callers (and
  * tests) can supply a fixture response without a real provider.
  */
-export async function extractSignals(fullText, meta, { callModel = defaultCallModel } = {}) {
+export async function extractSignals(fullText, meta, { callModel = callDeepSeek } = {}) {
   const prompt = buildExtractionPrompt(fullText, meta);
   const responseText = await callModel(prompt);
 

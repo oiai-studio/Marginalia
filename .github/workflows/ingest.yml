@@ -27,10 +27,9 @@ jobs:
       - name: Run pipeline
         run: npm run pipeline:run
         env:
-          # No provider is wired in yet — extraction will skip every
-          # candidate until this (or an equivalent) secret is added and
-          # scripts/lib/extract.mjs's callModel is implemented.
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Add DEEPSEEK_API_KEY as a repo secret (Settings > Secrets and
+          # variables > Actions) before this can extract anything live.
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
 
       - name: Open pull request
         uses: peter-evans/create-pull-request@v7

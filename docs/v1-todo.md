@@ -12,8 +12,8 @@ The site, validation, design system, pipeline, and import tooling are all built 
 
 ## Pipeline
 
-- [ ] Pick an LLM provider for the extraction step and wire it into `callModel()` in [extract.mjs](../scripts/lib/extract.mjs) — currently stubbed and throws `No LLM provider configured` for every candidate.
-- [ ] Add the provider's API key as a GitHub Actions secret (`ingest.yml` already expects `ANTHROPIC_API_KEY`; rename if a different provider is chosen).
+- [x] Pick an LLM provider — DeepSeek. `callModel()` in [extract.mjs](../scripts/lib/extract.mjs) now calls DeepSeek's chat completions API live, reading `DEEPSEEK_API_KEY` from the environment.
+- [ ] Add `DEEPSEEK_API_KEY` as a GitHub Actions secret (repo Settings > Secrets and variables > Actions > New repository secret) — `ingest.yml` already expects it, but I can't set the secret myself, only reference it. Until it's added, the weekly ingest will run and correctly skip every candidate with a clear "DEEPSEEK_API_KEY is not set" message rather than silently failing.
 - [ ] Confirm the weekly ingest time — [ingest.yml](../.github/workflows/ingest.yml) currently defaults to Monday 07:00 UTC.
 - [ ] Decide how `data/rejected.txt` gets populated day to day — nothing automates this yet; it's a plain text file, one ID per line, appended by hand.
 - [ ] Once the ingest workflow has run for real, build `scripts/ready.mjs`'s output into a habit (`npm run ready` lists queued entries) before flipping any to `published`.
