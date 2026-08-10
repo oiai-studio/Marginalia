@@ -4,19 +4,23 @@ The site, validation, design system, pipeline, and import tooling are all built 
 
 ## Content
 
-- [ ] Write the three real hand-written entries (`CLAUDE.md`: "Rob will write three real ones by hand before any generated entry ships; treat those three as the standard, not this template").
+- [x] Write the three real hand-written entries (`CLAUDE.md`: "Rob will write three real ones by hand before any generated entry ships; treat those three as the standard, not this template").
 - [ ] Delete the three placeholder entries once the real ones exist: [2026-fake-example-one.md](../src/content/entries/2026-fake-example-one.md), [2026-fake-example-two.md](../src/content/entries/2026-fake-example-two.md), [2026-fake-example-three.md](../src/content/entries/2026-fake-example-three.md) — each is marked `FAKE PLACEHOLDER ENTRY` in its frontmatter comment.
 - [x] Drop `STYLE.md` into `docs/planning/` — done. It's two guides in one file: general prose rules (applies to every summary on the site) and a full SaaS UI copy guide written for a different product ("Antivo" — buttons, forms, workspaces). The second half doesn't apply here; Marginalia has no interactive UI to write copy for.
 - [ ] The 9 real papers from `example-papers.md` are `status: published` and live on the site. Each still has `## Why it matters` deliberately blank — that's the one opinionated line on the page, worth writing per entry when there's a genuine take, rather than leaving all 9 silent indefinitely.
 - [ ] `2605.01472` ("Adaptive Memory in Conversational UX" from `example-papers.md`) doesn't check out — that arXiv ID resolves to an unrelated physics paper, and no matching title exists anywhere on arXiv. Track down the real ID or drop it from the source list.
 
+
+
 ## Pipeline
 
 - [x] Pick an LLM provider — DeepSeek. `callModel()` in [extract.mjs](../scripts/lib/extract.mjs) now calls DeepSeek's chat completions API live, reading `DEEPSEEK_API_KEY` from the environment.
-- [ ] Add `DEEPSEEK_API_KEY` as a GitHub Actions secret (repo Settings > Secrets and variables > Actions > New repository secret) — `ingest.yml` already expects it, but I can't set the secret myself, only reference it. Until it's added, the weekly ingest will run and correctly skip every candidate with a clear "DEEPSEEK_API_KEY is not set" message rather than silently failing.
+- [x] Add `DEEPSEEK_API_KEY` as a GitHub Actions secret (repo Settings > Secrets and variables > Actions > New repository secret) — `ingest.yml` already expects it, but I can't set the secret myself, only reference it. Until it's added, the weekly ingest will run and correctly skip every candidate with a clear "DEEPSEEK_API_KEY is not set" message rather than silently failing.
 - [ ] Confirm the weekly ingest time — [ingest.yml](../.github/workflows/ingest.yml) currently defaults to Monday 07:00 UTC.
 - [ ] Decide how `data/rejected.txt` gets populated day to day — nothing automates this yet; it's a plain text file, one ID per line, appended by hand.
 - [ ] Once the ingest workflow has run for real, build `scripts/ready.mjs`'s output into a habit (`npm run ready` lists queued entries) before flipping any to `published`.
+
+
 
 ## Backlog import
 
@@ -25,17 +29,23 @@ The site, validation, design system, pipeline, and import tooling are all built 
 - [ ] Review `data/unresolved.csv` after that run and hand-resolve or discard each row.
 - [ ] Pick the 15-20 backlog papers Rob already knows are good and list their IDs in `data/backlog-seed.txt`, then run `npm run import:seed` to fast-track them ahead of the weekly drain.
 
+
+
 ## Deployment
 
 - [x] In the GitHub repo settings, set Pages source to "GitHub Actions" (required for [deploy.yml](../.github/workflows/deploy.yml) to publish).
 - [x] Push to `main` and confirm the deploy workflow goes green and the site is reachable at `https://oiai-studio.github.io/Marginalia/`.
 - [ ] If a custom domain is wanted instead of the default GitHub Pages URL, update `site`/`base` in [astro.config.mjs](../astro.config.mjs) and add a `CNAME`.
 
+
+
 ## Housekeeping
 
 - [x] First commit and push — done.
 - [ ] Confirm `npm ci && npm run build` goes green in CI on a real PR (only run on direct pushes to `main` so far, via the deploy workflow — no PR has been opened yet).
 - [ ] Approve or ignore the `esbuild`/`sharp` install-script warnings npm prints on install (both are legitimate Astro build dependencies, not something this project added).
+
+
 
 ## Future feature ideas (post-v1, to discuss)
 
@@ -51,3 +61,4 @@ Rob's notes from using the live site — none of these are scoped or agreed yet,
 
 - DESIGN.md's `[DATED]` flag for old models tested isn't built — it needs a model-release-date lookup that isn't part of the content model, and wasn't in the agreed v1 scope.
 - CI will fail on the placeholder entries' fake URLs until they're replaced with the real three — that's the link-checker working as intended, not a bug.
+
