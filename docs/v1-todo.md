@@ -37,6 +37,16 @@ The site, validation, design system, pipeline, and import tooling are all built 
 - [ ] Confirm `npm ci && npm run build` goes green in CI on a real PR (only run on direct pushes to `main` so far, via the deploy workflow — no PR has been opened yet).
 - [ ] Approve or ignore the `esbuild`/`sharp` install-script warnings npm prints on install (both are legitimate Astro build dependencies, not something this project added).
 
+## Future feature ideas (post-v1, to discuss)
+
+Rob's notes from using the live site — none of these are scoped or agreed yet, just captured so we don't lose them before talking through the approach.
+
+- **Curation by industry.** A second axis alongside theme/tags: group or flag papers by industry vertical — pharma B2B, banking B2C, and so on — reflecting an actual opinion on which papers matter to which industries, not just an extracted fact. Open questions to work through: is this a closed vocabulary like theme, or looser like tags; does one paper get one industry or several; does it get its own checklist/route on the homepage the way themes do, or live purely as a filter.
+- **Personal shortlist.** Let a reader tick papers as they browse, then jump to a second page listing just their picks, with a way to take them away — download, or copy out as a markdown block formatted for pasting into an LLM. Would run entirely on browser-local storage, no accounts or server, which fits the "no accounts" non-goal. Needs client-side JavaScript to persist ticks and render the filtered picks page — fine per the updated rule in `CLAUDE.md`/`DESIGN.md` (no framework, no app infrastructure, but a small scoped script for a specific feature is allowed).
+- **More sorting controls.** Beyond the current fixed "published date, newest first," let readers reorder by things like model tested or institution. Could be pre-rendered as static routes for a small fixed set of orders (no JS needed, same pattern as theme/tag pages), or a small client-side script for fully open sorting — either is fine now.
+
+`CLAUDE.md`/`DESIGN.md` were updated (2026-08-09) to clarify the JS rule: no framework, no app infrastructure, but a small framework-free script scoped to one feature is fine when it earns its place. That was already the intent behind "no JavaScript framework" — `DESIGN.md`'s "no JavaScript ships to the browser at all" line had over-applied it into a hard zero-JS rule.
+
 ## Known, deliberate gaps (not blockers, just don't forget why)
 
 - DESIGN.md's `[DATED]` flag for old models tested isn't built — it needs a model-release-date lookup that isn't part of the content model, and wasn't in the agreed v1 scope.

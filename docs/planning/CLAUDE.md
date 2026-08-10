@@ -25,7 +25,7 @@ Treat these as hard constraints, not preferences. Do not build them, and do not 
 5. **No search in v1.** Theme and tag routes cover it.
 6. **No auto-publishing.** The pipeline writes drafts. A human flips them live.
 7. **No masthead date, "latest issue", or edition-based archive.** Publishing is irregular by design and the site must never look abandoned. See `DESIGN.md`.
-8. **No JavaScript framework.** See `DESIGN.md` for what the site is allowed to ship.
+8. **No JavaScript framework, no app infrastructure.** This is a static site, not an app: no React/Vue/etc., no client-side routing, no hydration machinery. That does not mean zero script tags — a small, framework-free script scoped to one feature is fine when it earns its place. See `DESIGN.md` for what the site is allowed to ship and where the default is still to reach for plain HTML/CSS first.
 
 ## The files
 

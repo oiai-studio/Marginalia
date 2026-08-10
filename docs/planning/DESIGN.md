@@ -65,7 +65,9 @@ Wider than a blog column. The reference runs the index near full width so the co
 
 At narrow widths the strip cannot hold five columns, so below roughly 700px it stacks into labelled rows (`[N] 24`) inside the expanded entry, and the collapsed row shows title, venue, year and nothing else. Design that state first: this gets used on a phone mid-meeting, and mono at 11px wraps badly if you leave it to chance.
 
-Expansion uses `<details>` and `<summary>`. No JavaScript ships to the browser at all.
+Expansion uses `<details>` and `<summary>` — no script needed, and that stays true regardless of what else the site grows. Default to plain HTML/CSS first, the way expansion and the theme/tag filters do: it's simpler, and simple is the point.
+
+That default is not a hard ban. This is a static site, not an app — no framework, no client-side routing, no hydration machinery — but a small, framework-free script scoped to one specific feature is fine when it earns its place and plain HTML/CSS genuinely can't do the job. The bar is "does this feature need it", not "is JavaScript allowed."
 
 ## On imagery
 
