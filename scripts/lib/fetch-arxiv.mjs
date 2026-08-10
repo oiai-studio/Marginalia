@@ -89,16 +89,20 @@ async function rawQuery(params) {
 }
 
 /**
- * Queries a category over a recent window with a keyword OR-filter across
- * title/abstract, per PIPELINE.md step 1. Over-collects on purpose —
- * filtering happens client-side against `sinceDate` and the caller's own
- * judgment, not a tight server-side query.
+ * Queries a category over a recent window, requiring at least one term
+ * from each group in `keywordGroups` to appear (AND across groups, OR
+ * within a group) — e.g. an AI-concept group AND a UX-concept group,
+ * so "agent" alone can't match a robotics paper with no HCI angle. Each
+ * group becomes one parenthesised OR-clause; arXiv's query syntax
+ * supports this directly, no client-side scoring needed. Still
+ * over-collects within that constraint on purpose — filtering the rest
+ * of the way is the caller's and, ultimately, Rob's PR-review judgment.
  */
-export async function queryCategory(category, { sinceDate, keywords = [], maxResults = 100 } = {}) {
-  const keywordClause = keywords.length
-    ? ' AND (' + keywords.map((k) => `abs:"${k}" OR ti:"${k}"`).join(' OR ') + ')'
-    : '';
-  const searchQuery = `cat:${category}${keywordClause}`;
+export async function queryCategory(category, { sinceDate, keywordGroups = [], maxResults = 100 } = {}) {
+  const groupClauses = keywordGroups
+    .filter((group) => group.length > 0)
+    .map((group) => '(' + group.map((k) => `abs:"${k}" OR ti:"${k}"`).join(' OR ') + ')');
+  const searchQuery = ['cat:' + category, ...groupClauses].join(' AND ');
 
   const entries = await rawQuery({
     search_query: searchQuery,

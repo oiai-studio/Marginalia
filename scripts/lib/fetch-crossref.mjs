@@ -54,13 +54,28 @@ export async function searchByTitle(title, { containerTitle, rows = 5 } = {}) {
 
 /**
  * Recent works from a venue (e.g. "CHI Conference on Human Factors in
- * Computing Systems"), for the weekly pipeline's CHI/IUI source.
+ * Computing Systems"), for the weekly pipeline's HCI-venue sources.
+ *
+ * Deliberately does NOT set `sort=published`. Verified live (2026-08-10):
+ * combining `query.container-title` with `sort=published&order=desc`
+ * silently discards Crossref's relevance ranking — a query for
+ * "Intelligent User Interfaces" returned "Weave: Journal of Library User
+ * Experience" as the top result once date-sorted, instead of the actual
+ * IUI proceedings that the same query returns correctly unsorted. Rely
+ * on Crossref's default relevance sort plus the date filter instead;
+ * callers should still pattern-match the returned `containerTitle`
+ * before trusting a result (see run.mjs's CROSSREF_VENUES).
+ *
+ * `rows` defaults generously (100) because most of these venues publish
+ * in annual bursts, not continuously — genuine matches are sparse most
+ * weeks (verified: 0/100 across every configured venue in a real 8-day
+ * window right now, correctly, since none of them are near their
+ * conference dates), so a narrow row count would miss a real burst when
+ * one is actually in-window.
  */
-export async function queryContainer(containerTitle, { sinceDate, rows = 50 } = {}) {
+export async function queryContainer(containerTitle, { sinceDate, rows = 100 } = {}) {
   const url = new URL(CROSSREF_API);
   url.searchParams.set('query.container-title', containerTitle);
-  url.searchParams.set('sort', 'published');
-  url.searchParams.set('order', 'desc');
   url.searchParams.set('rows', String(rows));
   if (sinceDate) {
     url.searchParams.set('filter', `from-pub-date:${sinceDate.toISOString().slice(0, 10)}`);

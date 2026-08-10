@@ -8,23 +8,28 @@ Build this last. Get the site working against hand-written entries first.
 
 | Source | Route |
 |---|---|
-| arXiv cs.HC, cs.AI, cs.CL | arXiv API (`export.arxiv.org/api/query`), or OAI-PMH for bulk |
-| CHI, IUI | Crossref by ISBN or container title, then the ACM DOI |
+| arXiv cs.HC, cs.AI, cs.CL, cs.LG, cs.CY, cs.IR | arXiv API (`export.arxiv.org/api/query`) |
+| CHI, IUI, UIST, CSCW, DIS, HRI, IMWUT (covers UbiComp/MobileHCI), CHI PLAY | Crossref, by container-title relevance search, verified against a venue pattern afterward — never a specific edition's title (see below) |
 
-The ACM Digital Library went fully open access in January 2026, so CHI and IUI full texts are now fetchable rather than paywalled. Use the DOI as the canonical `url` for those, and the arXiv abs page for preprints.
+The ACM Digital Library went fully open access in January 2026, so CHI/IUI/UIST/etc. full texts are now fetchable rather than paywalled. Use the DOI as the canonical `url` for those, and the arXiv abs page for preprints.
 
 Respect rate limits: arXiv asks for one request every three seconds and a descriptive user agent. This runs weekly, so there is no reason to push it.
 
+Two things worth knowing if you touch the source code (`scripts/lib/fetch-crossref.mjs`, `scripts/pipeline/run.mjs`):
+
+- **Never query Crossref by a specific edition's container title** (e.g. "the 28th International Conference on..."). Several venues bake an ordinal into their actual Crossref container-title per year (UIST in particular), so an exact-edition string silently ages badly. Query with a generic venue name instead, and verify the result's real `container-title` against a regex afterward.
+- **Never combine `query.container-title` with `sort=published`.** Verified live: it silently discards Crossref's relevance ranking — a search for "Intelligent User Interfaces" returned an unrelated library-science journal as the top hit once date-sorted. Use Crossref's default relevance sort, filter by date, and fetch generously (100 rows), because most of these venues publish in annual bursts rather than continuously — a real week's result is very often correctly zero.
+
 ## Weekly run
 
-1. **Query** each arXiv category for the last eight days, with a small keyword filter over title and abstract (`human-AI`, `LLM`, `agent`, `interface`, `user study`, `interaction`, `trust`, `collaboration`, and similar). Over-collect. Filtering hard here throws away the interesting edges.
+1. **Query** each arXiv category for the last eight days, requiring at least one AI-concept term **and** (except for `cs.HC`, which is already HCI by definition) at least one UX-concept term — arXiv's query syntax supports this directly (`cat:X AND (ai terms...) AND (ux terms...)`), so it's a precision filter, not a scoring system. Still over-collects within that constraint on purpose: filtering the rest of the way is Rob's PR-review judgment, not the query's job.
 2. **Deduplicate** against every `arxiv_id` and `doi` already in `entries/`, and against `rejected.txt`, a plain list of IDs Rob has already said no to. Never resurface a rejection.
 3. **Fetch full text.** arXiv renders HTML for most recent submissions; fall back to the PDF. The signal fields live in the methods section, so an abstract-only pass will return `not reported` for nearly everything and is worse than useless.
 4. **Extract** with the prompt below, one call per paper, returning JSON.
 5. **Write** one file per paper per `CONTENT-MODEL.md`, `status: queued`, `source: pipeline`.
 6. **Open one PR** titled with the date and the count. Include a table in the PR body: title, theme, participants, study type, link. Rob reviews from that table on a phone and deletes the files he does not want.
 
-Cap each run at twenty-five papers. If the query returns more, take the most recent and log the rest.
+Cap each run at forty papers, retrieving up to 150 per arXiv category before that cap applies. If the query returns more, take the most recent and log the rest. (Both numbers are deliberately moderate, not the hundreds a scored/ranked pipeline could justify — there is no ranking step yet, so every extra candidate is one more DeepSeek call and one more row for Rob to review by hand. See `docs/v1-todo.md` for the deferred scoring/semantic-judging proposal.)
 
 ## The extraction prompt
 
