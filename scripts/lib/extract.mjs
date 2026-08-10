@@ -57,7 +57,15 @@ theme           One of: [${closedList(THEME_SLUGS)}]
 secondary_themes  Zero to two from the same list.
 tags            From the closed tag list only: [${closedList(TAGS)}].
                 Anything outside it goes in proposed_tags instead.
-finding         What they found, 40 words maximum, your own words.
+finding         What they found, in your own words, past tense. Two short
+                sentences — match this length and shape exactly:
+                "Engineers rarely read agent output before accepting it,
+                but reviewed closely after any single visible failure.
+                That vigilance decayed within roughly two working days,
+                returning to baseline regardless of the failure's
+                severity."
+                Hard ceiling: 40 words. If you are unsure, write shorter
+                rather than longer.
 notes           Anything a reader would want flagged: a tiny sample, a
                 self-report-only measure, an unreleased system. One sentence
                 or empty.

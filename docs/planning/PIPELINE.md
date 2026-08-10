@@ -78,13 +78,23 @@ theme           One of: [closed list, with the five questions]
 secondary_themes  Zero to two from the same list.
 tags            From the closed tag list only. Anything outside it goes in
                 proposed_tags instead.
-finding         What they found, 40 words maximum, your own words.
+finding         What they found, in your own words, past tense. Two short
+                sentences — match this length and shape exactly:
+                "Engineers rarely read agent output before accepting it,
+                but reviewed closely after any single visible failure.
+                That vigilance decayed within roughly two working days,
+                returning to baseline regardless of the failure's
+                severity."
+                Hard ceiling: 40 words. If you are unsure, write shorter
+                rather than longer.
 notes           Anything a reader would want flagged: a tiny sample, a
                 self-report-only measure, an unreleased system. One sentence
                 or empty.
 ```
 
 This prompt is deliberately forcing `not reported` to be a first-class answer rather than a failure. That will erode if the prompt gets softened later.
+
+`finding`'s length instruction leads with a worked example rather than a bare word count, on purpose. A model processes text as tokens, not words, and has no built-in counting mechanism in a single JSON-extraction call — asking it to hit a precise number is asking for something it structurally can't self-verify. Pattern-matching a shown example's length and shape is something it's actually good at. Verified live (2026-08-10): the bare-number instruction missed the 40-word cap on 16 of 58 real extractions across two runs; `validate-entries.mjs`'s hard cap stays regardless of how well the prompt performs — this is about cutting how often it fires, not replacing it.
 
 ## Publishing
 
