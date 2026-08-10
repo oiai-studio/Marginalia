@@ -33,8 +33,3 @@ signals:
 Engineers rarely read agent output before accepting it, but reviewed closely
 after any single visible failure. That vigilance decayed within roughly two
 working days, returning to baseline regardless of the failure's severity.
-
-## Why it matters
-
-If trust recovers on a two-day clock, one good error message will not carry a
-handoff design for long.

@@ -31,10 +31,4 @@ signals:
 ## What they found
 
 Forty words maximum, in your own phrasing, never reworded from the abstract.
-Past tense. The finding itself, not the paper's framing of why it matters.
-
-## Why it matters
-
-One sentence, your read, for someone building something on Monday. The only
-opinionated line on the site. Leave it empty rather than filling it with
-something you do not actually think.
+Past tense. The finding itself, not the paper's own framing of it.

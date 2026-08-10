@@ -62,8 +62,6 @@ notes           Anything a reader would want flagged: a tiny sample, a
                 self-report-only measure, an unreleased system. One sentence
                 or empty.
 
-Leave "why it matters" empty. A human writes that.
-
 PAPER METADATA
 title: ${meta.title ?? 'unknown'}
 venue: ${meta.venue ?? 'unknown'}

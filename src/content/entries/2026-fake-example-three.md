@@ -36,8 +36,3 @@ signals:
 Designers reached for sketches before prompts even when the tool made typing
 faster, treating the sketch as the real specification and the prompt as a
 translation of it.
-
-## Why it matters
-
-A prompt box that competes with the sketchpad for primacy is fighting the
-wrong habit.

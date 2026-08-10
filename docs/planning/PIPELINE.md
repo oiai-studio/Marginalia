@@ -77,11 +77,9 @@ finding         What they found, 40 words maximum, your own words.
 notes           Anything a reader would want flagged: a tiny sample, a
                 self-report-only measure, an unreleased system. One sentence
                 or empty.
-
-Leave "why it matters" empty. A human writes that.
 ```
 
-Two things this prompt is deliberately doing: forcing `not reported` to be a first-class answer rather than a failure, and keeping the opinionated line out of the model's hands entirely. Both will erode if the prompt gets softened later.
+This prompt is deliberately forcing `not reported` to be a first-class answer rather than a failure. That will erode if the prompt gets softened later.
 
 ## Publishing
 

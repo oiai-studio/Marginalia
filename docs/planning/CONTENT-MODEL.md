@@ -1,6 +1,6 @@
 # One paper is one markdown file, and every field is a closed list
 
-Entries live at `entries/<year>-<arxiv-id-or-doi-slug>.md`. Frontmatter carries everything the site renders. The body carries the two summary fields and nothing else.
+Entries live at `entries/<year>-<arxiv-id-or-doi-slug>.md`. Frontmatter carries everything the site renders. The body carries one summary field and nothing else.
 
 ## Schema
 
@@ -71,22 +71,18 @@ An extraction that wants a tag outside this list flags it in the PR for Rob to a
 
 ## The body
 
-Two fields, both hard-capped, both checked at build.
+One field, hard-capped, checked at build.
 
 ```markdown
 ## What they found
 
 Forty words, maximum. Written fresh, never lifted or lightly reworded from the
 abstract. Plain past tense. The finding, not the framing.
-
-## Why it matters
-
-One sentence. Rob's read on what it changes for someone building something.
-This is the only opinionated line on the page, so it earns its place or it is
-left empty.
 ```
 
 If a finding will not fit in forty words, that is usually a sign the entry is trying to carry the paper rather than point at it. Cut, and let the link do its job.
+
+There is no opinion field. The reader draws their own conclusion from the signals; the site stays silent on what any of it means. See `CLAUDE.md`: "The editorial act is selection. Nothing else."
 
 ## Build-time validation
 
@@ -94,7 +90,6 @@ Fail the build, do not warn, on any of:
 
 - a frontmatter field missing, or a closed-vocabulary value unrecognised
 - `## What they found` over 40 words
-- `## Why it matters` over 30 words or containing more than one full stop
 - a `url` that does not resolve to a 200 on a link check
 - a duplicate `arxiv_id` or `doi`
 

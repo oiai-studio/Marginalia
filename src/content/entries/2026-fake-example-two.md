@@ -35,7 +35,3 @@ signals:
 
 Respondents noticed disclosure text far less often than researchers assumed,
 and mostly skimmed past it regardless of placement, wording, or contrast.
-
-## Why it matters
-
-A disclosure nobody reads is not a design that has done its job.

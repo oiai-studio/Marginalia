@@ -11,7 +11,7 @@
 // build shows the whole picture at once instead of one file at a time.
 
 import { readAllEntries } from './lib/entries.mjs';
-import { parseSections, wordCount, fullStopCount } from './lib/prose.mjs';
+import { parseSections, wordCount } from './lib/prose.mjs';
 import { checkUrls } from './lib/link-check.mjs';
 import {
   THEME_SLUGS,
@@ -45,8 +45,7 @@ const ENUM_FIELDS = {
 };
 
 const MAX_FINDING_WORDS = 40;
-const MAX_MATTERS_WORDS = 30;
-const MAX_MATTERS_FULL_STOPS = 1;
+const ALLOWED_SECTIONS = ['What they found'];
 
 const skipLinkCheck = process.env.SKIP_LINK_CHECK === '1';
 
@@ -100,15 +99,12 @@ function checkBody(content, errors) {
     }
   }
 
-  const matters = sections['Why it matters'];
-  if (matters !== undefined && matters.length > 0) {
-    const count = wordCount(matters);
-    if (count > MAX_MATTERS_WORDS) {
-      errors.push(`"## Why it matters" is ${count} words, over the ${MAX_MATTERS_WORDS}-word limit`);
-    }
-    const stops = fullStopCount(matters);
-    if (stops > MAX_MATTERS_FULL_STOPS) {
-      errors.push(`"## Why it matters" has ${stops} full stops, over the ${MAX_MATTERS_FULL_STOPS}-sentence limit`);
+  // CONTENT-MODEL.md: "The body carries one summary field and nothing
+  // else." Fail on any stray heading (e.g. a "Why it matters" that
+  // creeps back in) rather than silently rendering whatever's there.
+  for (const heading of Object.keys(sections)) {
+    if (!ALLOWED_SECTIONS.includes(heading)) {
+      errors.push(`unexpected "## ${heading}" section — the body only carries "## What they found"`);
     }
   }
 }

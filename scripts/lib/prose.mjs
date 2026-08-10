@@ -1,7 +1,7 @@
 // Body-section parsing and the word/sentence checks CONTENT-MODEL.md
 // requires, which live outside the frontmatter Zod already validates.
 
-const REQUIRED_HEADINGS = ['What they found', 'Why it matters'];
+const REQUIRED_HEADINGS = ['What they found'];
 
 /**
  * Splits a markdown body on `## ` headings into { heading: text } pairs.
@@ -31,14 +31,4 @@ export function parseSections(body) {
 
 export function wordCount(text) {
   return text.split(/\s+/).filter(Boolean).length;
-}
-
-/**
- * Naive full-stop count — counts literal "." characters. This will
- * misfire on abbreviations like "e.g." or "U.S." inside a sentence; a
- * known, accepted limitation for v1 given "Why it matters" is meant to be
- * one short, plain sentence in the first place.
- */
-export function fullStopCount(text) {
-  return (text.match(/\./g) ?? []).length;
 }

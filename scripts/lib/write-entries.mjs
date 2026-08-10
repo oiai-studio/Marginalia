@@ -51,7 +51,6 @@ export function buildEntryMarkdown(input) {
     tags = [],
     signals,
     finding = '',
-    whyItMatters = '',
   } = input;
 
   const lines = [
@@ -87,10 +86,6 @@ export function buildEntryMarkdown(input) {
     '## What they found',
     '',
     finding,
-    '',
-    '## Why it matters',
-    '',
-    whyItMatters,
     ''
   );
 
