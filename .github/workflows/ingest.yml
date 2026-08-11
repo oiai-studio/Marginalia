@@ -1,10 +1,15 @@
 name: Weekly ingest
 
-# Default: Monday 07:00 UTC — an easy value to change once Rob confirms a
-# preferred time (see the plan's "known follow-ups").
+# Scheduled trigger paused 2026-08-10 while the search algorithm (arXiv
+# categories, keyword groups, Crossref venues in run.mjs) is still being
+# tuned — don't want an unattended Monday run opening a PR mid-iteration.
+# Uncomment the schedule block below to resume the weekly automatic run;
+# it was Monday 07:00 UTC. workflow_dispatch stays live in the meantime,
+# so manual test runs (Actions tab, or `gh workflow run ingest.yml`)
+# still work exactly as before.
 on:
-  schedule:
-    - cron: '0 7 * * 1'
+  # schedule:
+  #   - cron: '0 7 * * 1'
   workflow_dispatch: {}
 
 permissions:
