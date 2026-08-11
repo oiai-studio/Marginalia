@@ -1,5 +1,9 @@
 # What's left to ship v1
 
+## Status (paused here, 2026-08-10)
+
+Rob's stepping away to work on other things. Picking up: the site itself is fully built, deployed, and live at `oiai-studio.github.io/Marginalia` — that part's done. The open thread is the ingest pipeline's search quality. Today's session broadened arXiv/Crossref coverage, fixed two real Crossref query bugs, and improved (but didn't fully solve) DeepSeek's tendency to overshoot the 40-word finding cap and confuse tags for themes. The weekly schedule is deliberately paused — commented out in `ingest.yml`, not deleted — so nothing fires unattended while Rob keeps tuning the search; manual test runs still work. PR #3 is open with 34 real candidate papers from the latest test run, still `queued`, worth a look next time. Start in the Pipeline section below.
+
 The site, validation, design system, pipeline, and import tooling are all built and verified (see the plan at implementation time for details). Nothing below is broken — this is what still needs Rob's input or a live environment before the site is real and public.
 
 ## Content
