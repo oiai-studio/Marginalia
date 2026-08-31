@@ -12,3 +12,6 @@ scripts/pipeline/run-summary.md
 .env
 .env.*
 !.env.example
+
+# Judge scores from a dry run, kept only for local threshold tuning.
+scripts/pipeline/run-scores.json

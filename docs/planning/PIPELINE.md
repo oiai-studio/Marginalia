@@ -1,6 +1,13 @@
-# The machine collects and extracts, the human judges
+# The machine proposes, the human decides
 
-A scheduled GitHub Action pulls new papers, fills the signal fields from full text, writes entry files with `status: queued`, and opens one pull request. Rob reviews and merges. Nothing reaches the site until he separately flips a status field, so merging is cheap and carries no editorial weight.
+A scheduled GitHub Action pulls new papers, scores them for relevance and design usefulness, fills the signal fields from full text for the ones that clear the bar, writes entry files with `status: published`, and opens one pull request. Rob reviews and merges, and merging is what puts papers on the site.
+
+**This changed on 2026-08-31, in both directions.** The pipeline used to collect broadly and rank nothing, handing over forty unsorted papers a week; it now judges, and proposes roughly eight. And entries used to be written as drafts for a separate manual status flip; they are now written live, so the pull request is the gate rather than a staging step. Merging is no longer cheap and does carry editorial weight — that is the point of the change, not a side effect of it.
+
+Two safeguards make that trade honest, and both matter more than they look:
+
+- **The model never decides what ships.** It scores one paper at a time, from title and abstract, and never sees the threshold or the other papers' scores. `selectPapers()` in `scripts/lib/judge.mjs` applies the bar, in code.
+- **Rejections are visible.** The near-miss table in every PR lists the papers that just missed, with their scores and a one-line reason. A badly set bar shows up as a paper that obviously should have shipped, rather than as an absence nobody can see.
 
 Build this last. Get the site working against hand-written entries first.
 
@@ -25,11 +32,18 @@ Two things worth knowing if you touch the source code (`scripts/lib/fetch-crossr
 1. **Query** each arXiv category for the last eight days, requiring at least one AI-concept term **and** (except for `cs.HC`, which is already HCI by definition) at least one UX-concept term — arXiv's query syntax supports this directly (`cat:X AND (ai terms...) AND (ux terms...)`), so it's a precision filter, not a scoring system. Still over-collects within that constraint on purpose: filtering the rest of the way is Rob's PR-review judgment, not the query's job.
 2. **Deduplicate** against every `arxiv_id` and `doi` already in `entries/`, and against `rejected.txt`, a plain list of IDs Rob has already said no to. Never resurface a rejection.
 3. **Fetch full text.** arXiv renders HTML for most recent submissions; fall back to the PDF. The signal fields live in the methods section, so an abstract-only pass will return `not reported` for nearly everything and is worse than useless.
-4. **Extract** with the prompt below, one call per paper, returning JSON.
-5. **Write** one file per paper per `CONTENT-MODEL.md`, `status: queued`, `source: pipeline`.
-6. **Open one PR** titled with the date and the count. Include a table in the PR body: title, theme, participants, study type, link. Rob reviews from that table on a phone and deletes the files he does not want.
+4. **Triage**, in batches of ten, on title and abstract: is the human, interaction or design contribution real, or incidental? This is where model-optimisation and benchmark papers that happen to contain the word "agent" get dropped. Roughly 40% of candidates survive.
+5. **Score** the survivors on four independent 0-5 scales — `hci_relevance`, `design_usefulness`, `empirical_weight`, `novelty`. Papers within a point of the bar are scored twice and the lower verdict stands, because that is where a small model is least stable.
+6. **Select**, in code. Hard gate at `hci_relevance >= 3`, then rank by `design_usefulness + empirical_weight + novelty` with equal weights, and take everything at or above the threshold. Equal weights are deliberate: weighted coefficients look precise and are calibrated against nothing. The threshold is calibrated — see `PIPELINE_SCORE_THRESHOLD` in `run.mjs` for the measurement it came from.
+7. **Extract** with the prompt below, one call per selected paper, returning JSON. Only papers that survived selection reach this step, which is why broadening retrieval made runs cheaper rather than dearer.
+8. **Write** one file per paper per `CONTENT-MODEL.md`, `status: published`, `source: pipeline`.
+9. **Open one PR** titled with the count. The body carries a synthesis of what clustered this week, the selected papers with their scores, anything repaired automatically, the near-misses, and anything skipped. Rob reviews from that on a phone, and deletes the files he does not want.
 
-Cap each run at forty papers, retrieving up to 150 per arXiv category before that cap applies. If the query returns more, take the most recent and log the rest. (Both numbers are deliberately moderate, not the hundreds a scored/ranked pipeline could justify — there is no ranking step yet, so every extra candidate is one more DeepSeek call and one more row for Rob to review by hand. See `docs/v1-todo.md` for the deferred scoring/semantic-judging proposal.)
+Retrieve up to 400 per arXiv category. There is no editorial cap on how many papers may qualify — the bar decides that — but `PIPELINE_RUN_CEILING` limits how many one run will pay to extract, and anything past it is reported in the near-miss table rather than dropped silently.
+
+Retrieval optimises for recall now that judging does the filtering. `cs.HC` has no keyword gate at all; the noisier categories require an AI term and a human-centred term, both lists deliberately wide. The old AI-AND-UX gate was the main thing losing good papers: a title like "Compass vs Railway Tracks" carries no keywords, and neither may its abstract, while the paper is squarely about how people direct agents.
+
+Two things that bite in practice. arXiv cross-lists heavily, so the same paper comes back from several category queries — `dedupeCandidates()` collapses those before judging, and it was 23% of a real run's volume. And arXiv returns 429 on bursts even inside the documented three-second interval; `rawQuery` retries with a widening backoff, because without it a rate-limited category silently costs a whole week's papers from that source.
 
 ## The extraction prompt
 
@@ -98,6 +112,8 @@ This prompt is deliberately forcing `not reported` to be a first-class answer ra
 
 ## Publishing
 
-Publishing is separate from merging, and manual. Rob edits `status: queued` to `status: published` on three or four entries at a time and pushes. The build renders published entries only.
+Publishing happens on merge. Entries are written `status: published`, so the pull request is the review gate: merge to publish the lot, delete a file to reject that paper. The build renders published entries only, and `validate-entries.mjs` still fails the build on a bad entry, which now blocks the merge — the right shape of gate, since a broken entry can no longer sit quietly in a queue.
+
+The practical consequence, worth stating plainly: a bad extraction that gets merged is live immediately. That is the cost of the trade, and the reason the PR body carries the repairs, near-misses and skips rather than just a list of titles.
 
 A `make ready` helper that lists queued entries with their titles and themes would save him opening twenty files, and is worth building once the rest works.

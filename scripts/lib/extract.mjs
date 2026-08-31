@@ -4,6 +4,7 @@
 // testable with a fixture, independent of the real provider — see
 // callDeepSeek below for the actual live call.
 
+import { wordCount } from './prose.mjs';
 import {
   THEMES,
   THEME_SLUGS,
@@ -156,24 +157,81 @@ export function validateExtraction(raw) {
   }
   if (errors.length) return { ok: false, errors };
 
+  // "needs-review" is a legitimate answer to a closed-vocabulary field —
+  // the prompt asks for it rather than an invented value — but it is not
+  // a writable one. It means a human has to choose, and an entry file
+  // carrying it fails the schema. Since entries now publish on merge,
+  // skip the candidate cleanly and say why, rather than writing a file
+  // that breaks the build.
+  for (const field of ['study_type', 'task_setting', 'theme']) {
+    if (raw[field] === 'needs-review') {
+      errors.push(`model returned "needs-review" for ${field} — needs a human decision, not writable`);
+    }
+  }
+
   if (!STUDY_TYPES.includes(raw.study_type) && raw.study_type !== 'needs-review') {
     errors.push(`unrecognised study_type "${raw.study_type}"`);
   }
   if (!TASK_SETTINGS.includes(raw.task_setting) && raw.task_setting !== 'needs-review') {
     errors.push(`unrecognised task_setting "${raw.task_setting}"`);
   }
-  if (!THEME_SLUGS.includes(raw.theme) && raw.theme !== 'needs-review') {
+
+  // Recover the model's most common mistake before judging it a failure.
+  // DeepSeek reliably files tag values under secondary_themes (v1-todo.md:
+  // ~6 candidates skipped for this every run; the same hand-fix was applied
+  // across PR #4). A real member of the closed TAGS list sitting in a theme
+  // field is misfiled, not invented, so move it and record the repair.
+  //
+  // Only secondary_themes is repairable, and the asymmetry is the point:
+  // that list is allowed to be empty, so removing a bad value leaves a
+  // valid entry. The primary theme is required and single, so a tag value
+  // there means the extraction never produced a theme at all — the tag is
+  // still rescued, but the candidate fails, because the alternative is
+  // guessing at the field the whole site is organised by.
+  const repairs = [];
+  const rescuedTags = [];
+
+  if (!THEME_SLUGS.includes(raw.theme) && TAGS.includes(raw.theme)) {
+    rescuedTags.push(raw.theme);
+    errors.push(`theme "${raw.theme}" is a tag, not a theme — no primary theme was extracted`);
+  } else if (!THEME_SLUGS.includes(raw.theme) && raw.theme !== 'needs-review') {
     errors.push(`unrecognised theme "${raw.theme}"`);
   }
+
+  const secondaries = [];
   for (const t of raw.secondary_themes ?? []) {
-    if (!THEME_SLUGS.includes(t)) errors.push(`unrecognised secondary_theme "${t}"`);
+    if (THEME_SLUGS.includes(t)) {
+      secondaries.push(t);
+    } else if (TAGS.includes(t)) {
+      repairs.push(`moved "${t}" out of secondary_themes into tags`);
+      rescuedTags.push(t);
+    } else {
+      errors.push(`unrecognised secondary_theme "${t}"`);
+    }
   }
+  raw = { ...raw, secondary_themes: secondaries };
 
   if (errors.length) return { ok: false, errors };
 
+  // CONTENT-MODEL.md caps secondary_themes at two, and the schema enforces
+  // it — trim rather than fail, since the first two are still correct.
+  if (raw.secondary_themes.length > 2) {
+    repairs.push(`trimmed secondary_themes from ${raw.secondary_themes.length} to 2`);
+    raw = { ...raw, secondary_themes: raw.secondary_themes.slice(0, 2) };
+  }
+
+  // The schema rejects an entry listing its own primary theme again as a
+  // secondary. Deduplicate rather than fail: it is a contradiction, but a
+  // harmless and obviously-resolvable one.
+  if (raw.secondary_themes.includes(raw.theme)) {
+    repairs.push(`removed primary theme "${raw.theme}" from secondary_themes`);
+    raw = { ...raw, secondary_themes: raw.secondary_themes.filter((t) => t !== raw.theme) };
+  }
+
   const tags = [];
   const proposedTags = [];
-  for (const tag of raw.tags ?? []) {
+  for (const tag of [...(raw.tags ?? []), ...rescuedTags]) {
+    if (tags.includes(tag) || proposedTags.includes(tag)) continue;
     (TAGS.includes(tag) ? tags : proposedTags).push(tag);
   }
 
@@ -192,6 +250,7 @@ export function validateExtraction(raw) {
       proposedTags,
       finding: raw.finding,
       notes: raw.notes ?? '',
+      repairs,
     },
   };
 }
@@ -212,5 +271,60 @@ export async function extractSignals(fullText, meta, { callModel = callDeepSeek 
     return { ok: false, errors: [`model response was not valid JSON: ${err.message}`] };
   }
 
-  return validateExtraction(raw);
+  const result = validateExtraction(raw);
+  if (!result.ok) return result;
+
+  const shortened = await shortenFinding(result.data.finding, { callModel });
+  if (shortened.changed) {
+    result.data.finding = shortened.finding;
+    result.data.repairs.push(shortened.note);
+  }
+
+  return result;
+}
+
+export const MAX_FINDING_WORDS = 40;
+
+/**
+ * Asks once for a shorter finding when the model overshoots the 40-word
+ * cap. Worth the extra call: v1-todo.md measured 18% of findings over the
+ * cap even after the prompt's worked-example fix, and each one is a red
+ * build. validate-entries.mjs keeps its hard cap regardless — this cuts
+ * how often that fires, it does not replace it.
+ *
+ * A failed or still-too-long retry returns the original untouched, so the
+ * build check catches it rather than this step silently truncating a
+ * sentence mid-clause.
+ */
+export async function shortenFinding(finding, { callModel = callDeepSeek } = {}) {
+  const original = String(finding ?? '');
+  if (wordCount(original) <= MAX_FINDING_WORDS) return { changed: false, finding: original };
+
+  const prompt = `Shorten this to ${MAX_FINDING_WORDS} words or fewer, keeping the finding and
+dropping the framing. Plain British English, past tense, no em dashes. Do not
+add anything that is not already there.
+
+Match this length and shape:
+"Engineers rarely read agent output before accepting it, but reviewed closely
+after any single visible failure. That vigilance decayed within roughly two
+working days, returning to baseline regardless of the failure's severity."
+
+Return only JSON: {"finding": "..."}
+
+TEXT TO SHORTEN
+${original}`;
+
+  try {
+    const parsed = JSON.parse(await callModel(prompt));
+    const candidate = String(parsed.finding ?? '').trim();
+    const count = wordCount(candidate);
+    if (!candidate || count > MAX_FINDING_WORDS) return { changed: false, finding: original };
+    return {
+      changed: true,
+      finding: candidate,
+      note: `shortened finding from ${wordCount(original)} to ${count} words`,
+    };
+  } catch {
+    return { changed: false, finding: original };
+  }
 }
