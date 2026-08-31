@@ -1,0 +1,25 @@
+---
+// A break between publication months in the entry list. Centred and
+// padded so the boundary is findable while scanning, in the same 11px
+// uppercase chrome as every other piece of furniture on the site.
+//
+// Deliberately not role="presentation" (unlike SignalStripHeader, which
+// is a bare column-header row and meaningless out of context) and
+// deliberately not a heading — EntryCard already uses <h2> for paper
+// titles, and a month is not their parent. A plain element keeps the
+// label in the accessibility tree, read in flow where it falls.
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+---
+
+<div class="month-break chrome muted">{label}</div>
+
+<style>
+  .month-break {
+    text-align: center;
+    padding: 28px 0 20px;
+  }
+</style>

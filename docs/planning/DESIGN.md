@@ -77,7 +77,9 @@ The texture here comes from the aligned columns and the field gaps instead. If a
 
 ## Never signal the site's own staleness
 
-No masthead date. No "updated", "latest", "this week", "issue", or "volume". No archive organised by period. Default order is the paper's own publication date, newest first; the date an entry was added is stored and never shown.
+No masthead date. No "updated", "latest", "this week", "issue", or "volume". Default order is the paper's own publication date, newest first; the date an entry was added is stored and never shown.
+
+The rule is about the site's own activity, not about dates as such. Breaking the list by the papers' publication month is fine, and the feed does it — that describes the papers. What stays banned is anything that dates the site itself, or any period grouping keyed to when entries were added rather than when the work was published.
 
 The homepage opens with one sentence explaining what the site is and how to read the signals, then goes straight into the list. No hero, no about section.
 
