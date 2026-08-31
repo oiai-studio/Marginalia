@@ -3,8 +3,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ThemeChecklist from '../../components/ThemeChecklist.astro';
 import SignalStripHeader from '../../components/SignalStripHeader.astro';
 import EntryCard from '../../components/EntryCard.astro';
+import MonthBreak from '../../components/MonthBreak.astro';
 import { THEMES } from '../../content/vocab.mjs';
-import { getPublishedEntries, byThemeRoute } from '../../lib/entries';
+import { getPublishedEntries, byThemeRoute, groupByMonth } from '../../lib/entries';
 
 // Generated for all 5 theme slugs even when a theme currently has zero
 // entries — it's a small, closed, permanent list, so an empty page reads
@@ -20,6 +21,7 @@ const allEntries = await getPublishedEntries();
 // Includes secondary-theme matches, unlike the homepage feed — see
 // byThemeRoute in src/lib/entries.ts for the CONTENT-MODEL.md reading.
 const entries = byThemeRoute(allEntries, themeSlug as string);
+const months = groupByMonth(entries);
 ---
 
 <BaseLayout title={`Marginalia — ${theme.label}`}>
@@ -39,7 +41,12 @@ const entries = byThemeRoute(allEntries, themeSlug as string);
     {entries.length === 0 ? (
       <p class="muted chrome empty">nothing here yet</p>
     ) : (
-      entries.map((entry) => <EntryCard entry={entry} />)
+      months.map((month) => (
+        <>
+          <MonthBreak label={month.label} />
+          {month.entries.map((entry) => <EntryCard entry={entry} />)}
+        </>
+      ))
     )}
   </section>
 </BaseLayout>

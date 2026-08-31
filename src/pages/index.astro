@@ -3,9 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ThemeChecklist from '../components/ThemeChecklist.astro';
 import SignalStripHeader from '../components/SignalStripHeader.astro';
 import EntryCard from '../components/EntryCard.astro';
-import { getPublishedEntries } from '../lib/entries';
+import MonthBreak from '../components/MonthBreak.astro';
+import { getPublishedEntries, groupByMonth } from '../lib/entries';
 
 const entries = await getPublishedEntries();
+const months = groupByMonth(entries);
 ---
 
 <BaseLayout title="Marginalia">
@@ -24,7 +26,12 @@ const entries = await getPublishedEntries();
 
   <section class="entries">
     <SignalStripHeader />
-    {entries.map((entry) => <EntryCard entry={entry} />)}
+    {months.map((month) => (
+      <>
+        <MonthBreak label={month.label} />
+        {month.entries.map((entry) => <EntryCard entry={entry} />)}
+      </>
+    ))}
   </section>
 </BaseLayout>
 
