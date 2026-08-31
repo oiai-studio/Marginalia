@@ -31,8 +31,12 @@ export async function fetchCandidateFullText(candidate) {
  * entry with `source` ("pipeline" or "backlog"). Returns
  * { ok: true, candidate, fileName, extraction } or
  * { ok: false, candidate, errors }.
+ *
+ * `status` is a parameter rather than a constant because seed-queue.mjs
+ * shares this path — hardcoding it here would change the manual import's
+ * behaviour as a side effect of changing the weekly pipeline's.
  */
-export async function processCandidate(candidate, source) {
+export async function processCandidate(candidate, source, { status = 'published' } = {}) {
   const fullText = await fetchCandidateFullText(candidate);
   const extraction = await extractSignals(fullText, { title: candidate.title, venue: candidate.venue });
 
@@ -45,7 +49,7 @@ export async function processCandidate(candidate, source) {
     authors: candidate.authors ?? 'not reported',
     institutions: extraction.data.institutions,
     published: candidate.published ?? new Date(),
-    status: 'queued',
+    status,
     source,
     venue: candidate.venue,
     venueType: candidate.venueType,

@@ -25,6 +25,19 @@ function yamlParticipants(value) {
   return typeof value === 'number' ? String(value) : yamlStr(value);
 }
 
+/**
+ * CONTENT-MODEL.md's `authors` rule: "first author + et al., or up to two
+ * names". Takes the list both fetch-arxiv.mjs's parseEntry and
+ * fetch-crossref.mjs's normalize already return.
+ */
+export function formatAuthors(authors) {
+  const names = (authors ?? []).map((n) => String(n).trim()).filter(Boolean);
+  if (names.length === 0) return 'not reported';
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]}, ${names[1]}`;
+  return `${names[0]} et al.`;
+}
+
 /** Slug used in the `entries/<year>-<slug>.md` filename, per CONTENT-MODEL.md. */
 export function slugFor({ arxivId, doi }) {
   if (arxivId) return arxivId;

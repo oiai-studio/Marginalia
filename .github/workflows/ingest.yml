@@ -1,16 +1,29 @@
 name: Weekly ingest
 
-# Scheduled trigger paused 2026-08-10 while the search algorithm (arXiv
-# categories, keyword groups, Crossref venues in run.mjs) is still being
-# tuned — don't want an unattended Monday run opening a PR mid-iteration.
-# Uncomment the schedule block below to resume the weekly automatic run;
-# it was Monday 07:00 UTC. workflow_dispatch stays live in the meantime,
-# so manual test runs (Actions tab, or `gh workflow run ingest.yml`)
-# still work exactly as before.
+# Scheduled trigger still paused. It was paused on 2026-08-10 while the
+# search was being tuned; the judging pipeline that replaced that search
+# landed 2026-08-31, and the schedule stays off until a real PR from it
+# has been read. Three things are new at once — a judge deciding what
+# ships, a threshold calibrated against exactly one week of data, and
+# entries that publish on merge — and the threshold is the one most
+# likely to need moving.
+#
+# To resume the weekly run, uncomment the schedule block below (it was
+# Monday 07:00 UTC). workflow_dispatch stays live meanwhile, so manual
+# runs work from the Actions tab or `gh workflow run ingest.yml`.
 on:
   # schedule:
   #   - cron: '0 7 * * 1'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Judge and report only — no extraction, no entries, no PR content'
+        type: boolean
+        default: false
+      score_threshold:
+        description: 'Override the bar (default 13, out of 15). Lower ships more.'
+        type: string
+        required: false
 
 permissions:
   contents: write
@@ -33,14 +46,27 @@ jobs:
         run: npm run pipeline:run
         env:
           # Add DEEPSEEK_API_KEY as a repo secret (Settings > Secrets and
-          # variables > Actions) before this can extract anything live.
+          # variables > Actions) before this can judge or extract anything.
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          PIPELINE_DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+          PIPELINE_SCORE_THRESHOLD: ${{ inputs.score_threshold }}
+
+      - name: Count new entries
+        id: count
+        run: echo "n=$(git status --porcelain src/content/entries | wc -l | tr -d ' ')" >> "$GITHUB_OUTPUT"
+
+      # A dry run writes no entries, so there is nothing to open a PR
+      # for — read the summary in the job log instead.
+      - name: Show summary (dry run)
+        if: ${{ inputs.dry_run }}
+        run: cat scripts/pipeline/run-summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Open pull request
+        if: ${{ !inputs.dry_run }}
         uses: peter-evans/create-pull-request@v7
         with:
-          commit-message: 'Weekly ingest: new entries'
-          title: 'Weekly ingest — ${{ github.run_id }}'
+          commit-message: 'Weekly ingest: ${{ steps.count.outputs.n }} new entries'
+          title: 'Weekly ingest — ${{ steps.count.outputs.n }} papers'
           body-path: scripts/pipeline/run-summary.md
           branch: ingest/weekly-${{ github.run_number }}
           add-paths: |

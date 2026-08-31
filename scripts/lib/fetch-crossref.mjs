@@ -14,6 +14,20 @@ async function request(url) {
   return res.json();
 }
 
+/** Crossref stores abstracts as JATS XML when a publisher deposits one at
+ * all — many do not. Strip the tags for the judge; absence is normal and
+ * handled by the caller, not an error. */
+function plainAbstract(abstract) {
+  if (!abstract) return null;
+  return abstract
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\s+/g, ' ')
+    .trim() || null;
+}
+
 function normalize(work) {
   if (!work) return null;
   const dateParts = work.published?.['date-parts']?.[0] ?? work['published-print']?.['date-parts']?.[0];
@@ -26,6 +40,7 @@ function normalize(work) {
     doi: work.DOI,
     title: Array.isArray(work.title) ? work.title[0] : work.title,
     authors,
+    abstract: plainAbstract(work.abstract),
     published,
     containerTitle: Array.isArray(work['container-title']) ? work['container-title'][0] : work['container-title'],
     url: work.URL ?? (work.DOI ? `https://doi.org/${work.DOI}` : null),

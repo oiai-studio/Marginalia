@@ -10,6 +10,8 @@ Each entry is one paper, reduced to a set of appraisal signals (who was tested, 
 
 The editorial act is selection. Nothing else.
 
+Since 2026-08-31 the machine makes a first pass at that selection — it scores every candidate on relevance, design usefulness, evidence and novelty, and proposes the ones clearing a bar. That is a real change to the sentence above, made deliberately: the previous "collect everything, Rob judges" approach put forty unranked papers a week in front of him, which is not curation, only postponed sorting. The final call stays his. Every paper the judge dropped near the bar is listed in the pull request with its scores, so a bad cull is visible rather than silent.
+
 ## Who it is for
 
 Practising product designers and researchers building AI products, looking up what the research says about a problem they have today. Assume they are competent, short of time, and often on a phone.
@@ -23,7 +25,7 @@ Treat these as hard constraints, not preferences. Do not build them, and do not 
 3. **No hosted full text, and no reproduced abstracts.** Every summary is written fresh in Rob's own words. Link out for the rest.
 4. **No accounts, comments, analytics, cookie banners, or newsletter capture.**
 5. **No search in v1.** Theme and tag routes cover it.
-6. **No auto-publishing.** The pipeline writes drafts. A human flips them live.
+6. **No unreviewed publishing.** Entries are written as `published` and go live when Rob merges the pull request, so reviewing that PR is the gate and deleting a file is how a paper is rejected. Nothing reaches the site without a human merge. (Until 2026-08-31 this read "no auto-publishing" and the pipeline wrote drafts for a separate manual status flip; the gate moved, it did not go away.)
 7. **No masthead date, "latest issue", or edition-based archive.** Publishing is irregular by design and the site must never look abandoned. See `DESIGN.md`.
 8. **No JavaScript framework, no app infrastructure.** This is a static site, not an app: no React/Vue/etc., no client-side routing, no hydration machinery. That does not mean zero script tags — a small, framework-free script scoped to one feature is fine when it earns its place. See `DESIGN.md` for what the site is allowed to ship and where the default is still to reach for plain HTML/CSS first.
 

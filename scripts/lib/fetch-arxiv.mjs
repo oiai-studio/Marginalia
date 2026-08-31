@@ -75,17 +75,38 @@ function parseEntry(block) {
   };
 }
 
+// arXiv returns 429 on bursts even inside the documented 3s interval,
+// and the weekly run queries six categories back to back. Observed live
+// (2026-08-31): cs.IR came back 429 and, without this, that silently
+// cost the whole category for the week. Retry with a widening backoff
+// rather than losing a source.
+const RETRY_STATUSES = new Set([429, 500, 502, 503, 504]);
+const MAX_ATTEMPTS = 4;
+
 async function rawQuery(params) {
-  await throttle();
   const url = new URL(ARXIV_API);
   for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
 
-  const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
-  if (!res.ok) throw new Error(`arXiv API request failed: ${res.status} ${res.statusText}`);
-  const xml = await res.text();
+  let lastError = 'unknown';
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+    await throttle();
+    const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
 
-  const entryBlocks = Array.from(xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)).map((m) => m[1]);
-  return entryBlocks.map(parseEntry);
+    if (res.ok) {
+      const xml = await res.text();
+      const entryBlocks = Array.from(xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)).map((m) => m[1]);
+      return entryBlocks.map(parseEntry);
+    }
+
+    lastError = `${res.status} ${res.statusText}`;
+    if (!RETRY_STATUSES.has(res.status) || attempt === MAX_ATTEMPTS) break;
+
+    const backoff = 5000 * attempt;
+    console.error(`  arXiv ${lastError}, retrying in ${backoff / 1000}s (attempt ${attempt} of ${MAX_ATTEMPTS - 1})`);
+    await new Promise((resolve) => setTimeout(resolve, backoff));
+  }
+
+  throw new Error(`arXiv API request failed: ${lastError}`);
 }
 
 /**

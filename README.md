@@ -11,10 +11,11 @@ Live at [`oiai-studio.github.io/Marginalia`](https://oiai-studio.github.io/Margi
 Every entry goes through the same four stages, whether it arrived by the weekly automated search or by hand:
 
 ```
-1. FIND        →  2. RESOLVE       →  3. EXTRACT        →  4. REVIEW
-   a candidate     confirm it's a       an LLM reads         a human decides
-   paper turns up  real paper, get      the full text and    what ships
-                    its canonical ID    fills in the fields
+1. FIND        →  2. JUDGE        →  3. RESOLVE      →  4. EXTRACT       →  5. REVIEW
+   a candidate     score it on        confirm it's a     an LLM reads        a human decides
+   paper turns up  relevance and      real paper, get    the full text and   what ships, by
+                   usefulness, and    its canonical ID   fills in the        merging or deleting
+                   drop the rest                         fields
 ```
 
 **1. Find.** New candidates come from two places:
@@ -25,7 +26,9 @@ Every entry goes through the same four stages, whether it arrived by the weekly 
 
 **3. Extract.** Only once a paper is confirmed real does an LLM (DeepSeek) read its full text and fill in a fixed set of fields — see [What the LLM does](#what-the-llm-does) below.
 
-**4. Review.** The entry is written to [`src/content/entries/`](src/content/entries/) as a file with `status: queued`. Nothing queued is visible on the live site. A human reviews it, and either flips it to `status: published` or deletes the file.
+**2. Judge.** Retrieval casts a wide net on purpose, so something has to narrow it. Every candidate is scored on four scales from its title and abstract — is it genuinely HCI × AI, could a designer use it, how much evidence is behind it, is the interaction idea new — and only those clearing a stated bar go on to the expensive full-text step. The scoring model never sees the bar and never picks the winners: it scores one paper at a time and code does the selecting. Papers that just missed are listed in the pull request with their scores, so the filter can be checked rather than trusted.
+
+**5. Review.** The entry is written to [`src/content/entries/`](src/content/entries/) as a file with `status: published`, and goes live when the pull request is merged. Reviewing that PR is the gate: merge to publish, delete the file to reject. Nothing reaches the site without a human merging it.
 
 ## What the LLM does
 
@@ -41,8 +44,8 @@ Hard rules it follows (the full prompt is in [`docs/planning/PIPELINE.md`](docs/
 
 Everything the LLM deliberately doesn't do:
 
-- **Judges relevance.** The pipeline collects broadly on purpose — it's cheaper to over-collect and let a human skim a PR table than to build a scoring system nobody's calibrated. Reviewing the PR *is* the editorial step.
-- **Publishes.** Editing `status: queued` → `status: published` and pushing is the only way an entry becomes visible. Nothing auto-publishes, ever.
+- **Judges the judge.** The pipeline now proposes a shortlist rather than handing over everything it found. Reviewing the PR is still the editorial step, and it now includes checking what got dropped: the near-miss table exists so a badly set bar shows up as a paper that should have shipped, not as silence.
+- **Publishes.** Merging the pull request is what makes an entry visible. The machine proposes; nothing goes live until Rob merges.
 - **Maintains the reject list.** Papers waved off in review go in [`data/rejected.txt`](data/rejected.txt) so the weekly ingest never resurfaces them.
 - **Breaks ties.** If a paper's primary theme is a genuine coin toss, or an extraction needs a tag outside the closed list, that's flagged for a human call — the LLM never invents a value to fill the gap.
 
